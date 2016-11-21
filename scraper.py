@@ -99,21 +99,17 @@ soup = BeautifulSoup(html, "lxml")
 
 #### SCRAPE DATA
 
-links = soup.findAll('a')
+links = soup.find('div', id='mainContent').find('ul').findAll('a')
 for link in links:
         csvfile = ''
         try:
-            csvfile = link['title'].strip()
+            csvfile = link.text.strip()
         except: pass
-        if 'CSV' in csvfile:
+        if '.csv' in link['href']:
             url = 'http://www.rutland.gov.uk' + link['href']
-            csvy = csvfile.split(' ')
-            csvYr = csvfile.split(' ')[1]
-            if 'December' in csvy[0] and len(csvy) == 3:
-                csvYr = '2013'
-            if 'Expenditure' in csvYr or 'CSV' in csvYr:
-                csvYr = '2014'
-            csvMth = csvy[0][:3]
+            csv_text = csvfile.split()
+            csvMth = csv_text[0][:3]
+            csvYr = csv_text[1]
             csvMth = convert_mth_strings(csvMth.upper())
             data.append([csvYr, csvMth, url])
 
@@ -137,4 +133,3 @@ if errors > 0:
 
 
 #### EOF
-
