@@ -86,7 +86,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E2402_RCC_gov"
-url = "http://www.rutland.gov.uk/council_and_democracy/open_data_including_foi__dat/council_expenditure.aspx"
+url = "https://www.rutland.gov.uk/my-council/transparency/council-spending-information/"
 errors = 0
 data = []
 
@@ -99,19 +99,33 @@ soup = BeautifulSoup(html, "lxml")
 
 #### SCRAPE DATA
 
-links = soup.find('div', id='mainContent').find('ul').findAll('a')
+links = soup.find('div', 'clear column-body').find('ul').findAll('a')
 for link in links:
-        csvfile = ''
-        try:
-            csvfile = link.text.strip()
-        except: pass
-        if '.csv' in link['href']:
-            url = 'http://www.rutland.gov.uk' + link['href']
-            csv_text = csvfile.split()
-            csvMth = csv_text[0][:3]
-            csvYr = csv_text[1]
-            csvMth = convert_mth_strings(csvMth.upper())
-            data.append([csvYr, csvMth, url])
+    csvfile = ''
+    try:
+        csvfile = link.text.strip()
+    except: pass
+    if '.csv' in link['title']:
+        url = 'http://www.rutland.gov.uk' + link['href']
+        csv_text = csvfile.split()
+        csvMth = 'Y1'
+        csvYr = '2016'
+        csvMth = convert_mth_strings(csvMth.upper())
+        data.append([csvYr, csvMth, url])
+archive_urls = soup.find('table', 'oDataGrid').find_all('a', attrs={'target':'_self'})
+for archive_url in archive_urls:
+    csvfile = ''
+    try:
+        csvfile = archive_url.text.strip()
+    except: pass
+    if '.csv' in archive_url['href']:
+        url = 'http://www.rutland.gov.uk' + archive_url['href']
+        csv_text = csvfile.split('/')
+        csvMth = 'Y1'
+        csvYr = csv_text[0].split()[-1]
+        csvMth = convert_mth_strings(csvMth.upper())
+        data.append([csvYr, csvMth, url])
+
 
 
 #### STORE DATA 1.0
@@ -133,3 +147,4 @@ if errors > 0:
 
 
 #### EOF
+
